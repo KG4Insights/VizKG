@@ -183,53 +183,6 @@ def get_name_pairwise_features(n1, n2, MAX_NAME_LENGTH=500):
 
 
 def extract_pairwise_field_features(field_data, single_field_features, fid, timeout=15, MAX_FIELDS=10):
-    # Pre-process types from single field features
-    # num_fields = len(field_data)
-
-    # # Populate features dictionary. Structure:
-    # # [
-    # #     [2, 3, 4, 5]
-    # #     [3, 4, 5]
-    # #     [4, 5 ]
-    # #     [5]
-    # # ]
-    # all_pairwise_field_features = []
-    # for field_1_index in range(MAX_FIELDS - 1):
-    #     field_1_pairwise_field_features = []
-    #     for field_2_index in range(field_1_index + 1, MAX_FIELDS):
-    #         pairwise_field_features = OrderedDict([ (f['name'], None) for f in all_pairwise_features_list ])
-    #         field_1_pairwise_field_features.append(pairwise_field_features)
-    #     all_pairwise_field_features.append(field_1_pairwise_field_features)
-
-    # for field_1_index in range(num_fields - 1):
-    #     for field_2_index in range(0, num_fields - field_1_index - 1):
-    #         absolute_field_2_index = field_1_index + field_2_index + 1
-    #         a = field_data[field_1_index]
-    #         b = field_data[absolute_field_2_index]
-
-    #         general_pairwise_features = OrderedDict()
-    #         name_pairwise_features = OrderedDict()
-    #         statistical_pairwise_features = OrderedDict()
-
-    #         try:
-    #             start_time = time()
-    #             while time() < (start_time + timeout):
-    #                 name_pairwise_features = get_name_pairwise_features(a['name'], b['name'])
-    #                 statistical_pairwise_features = get_statistical_pairwise_features(a, b)
-    #                 general_pairwise_features = get_general_pairwise_features(a, b)
-    #                 break
-    #         except Exception as e:
-    #             print('Error getting features for {} and {}'.format(a['name'], b['name']))
-    #             pass
-
-    #         for feature_set in [ general_pairwise_features, name_pairwise_features, statistical_pairwise_features]:
-    #             for k, v in feature_set.items():
-    #                 all_pairwise_field_features[field_1_index][field_2_index][k] = v
-
-    #         all_pairwise_field_features[field_1_index][field_2_index]['pair_exists'] = True
-    #         all_pairwise_field_features[field_1_index][field_2_index]['fid'] = fid
-    #         all_pairwise_field_features[field_1_index][field_2_index]['field_a_id'] = a['name']
-    #         all_pairwise_field_features[field_1_index][field_2_index]['field_b_id'] = b['name']
 
     all_pairwise_field_features = []
     for a, b in combinations(zip(field_data, single_field_features), 2):
