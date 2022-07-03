@@ -8,9 +8,9 @@ import numpy as np
 import pandas as pd 
 from collections import OrderedDict
 from scipy.stats import pearsonr, f_oneway, chi2_contingency, ks_2samp
-from itertools import combinations
+from itertools import permutations
 from time import time
-from itertools import combinations
+
 
 from .type_detection import data_types, general_types
 from .helpers import parse, get_unique, get_list_uniqueness, get_shared_elements, calculate_overlap
@@ -185,7 +185,7 @@ def get_name_pairwise_features(n1, n2, MAX_NAME_LENGTH=500):
 def extract_pairwise_field_features(field_data, single_field_features, fid, timeout=15, MAX_FIELDS=10):
 
     all_pairwise_field_features = []
-    for a, b in combinations(zip(field_data, single_field_features), 2):
+    for a, b in permutations(zip(field_data, single_field_features), 2):
         a_data, a_features = a
         b_data, b_features = b
 
