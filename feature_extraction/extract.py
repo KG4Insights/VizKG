@@ -37,10 +37,10 @@ CHUNK_SIZE = 1000
 
 compute_features_config = {
     'single_field': True,
-    'aggregate_single_field': True,
+    'aggregate_single_field': False,
 
     'pairwise_field': True,
-    'aggregate_pairwise_field': True,
+    'aggregate_pairwise_field': False,
 
     'field_level_features': True,
     'chart_outcomes': True,
@@ -319,8 +319,11 @@ if __name__ == '__main__':
     # Create features directory
     base_dir = '..'
     features_dir_name = os.path.join(base_dir, 'features', 'raw')
-    os.mkdir(features_dir_name)
-    os.mkdir(os.path.join(features_dir_name, 'by_field'))
+    try:
+        os.mkdir(features_dir_name)
+        os.mkdir(os.path.join(features_dir_name, 'by_field'))
+    except:
+        pass
 
     first_batch = True
     start_time = time()

@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import scipy as sc
-from scipy.stats import entropy, normaltest, mode
 import pandas as pd
 
 import re
-import ast
 from decimal import Decimal
 from random import sample
-
-from collections import OrderedDict
 
 from datetime import datetime, date
 import dateutil.parser as dparser
