@@ -116,5 +116,5 @@ with open(input_file_name, 'r') as f:
                 del specification
             chunk_traces.extend(list(columns_info.values()))
             
-        df = pd.DataFrame(chunk_traces, columns=[FID, FIELD_ID, TRACE_TYPE, IS_XSRC, IS_YSRC,DATA])
+        df = pd.DataFrame(chunk_traces, columns=[FID, FIELD_ID, TRACE_TYPE, IS_XSRC, IS_YSRC, DTYPE, DATA])
         df.to_csv(output_file_name, mode='a', index=False, header=(i == 0), sep='\t')
