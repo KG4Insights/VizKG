@@ -74,7 +74,7 @@ def cast_dtype(elements : pd.Series, specific_dtype : str):
         # cast dates to milliseconds so the ordinal characteristics are preserved
         temp = pd.to_datetime(elements, infer_datetime_format=True, errors='coerce')
         return pd.Series(temp, dtype=temp.dtype) 
-    if general_dtype == BOOL:
+    if general_dtype == DBOOL:
         return pd.Series(elements, dtype=pd.BooleanDtype)
     return pd.Series(elements, dtype='string')
 
