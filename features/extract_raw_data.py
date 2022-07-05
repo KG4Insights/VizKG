@@ -6,6 +6,7 @@ import numpy as np
 import warnings
 warnings.filterwarnings("error")
 
+# Columns of the result dataset
 FID = 'fid'
 FIELD_ID = 'field_id'
 TRACE_TYPE = 'trace_type'
@@ -33,8 +34,8 @@ def get_src_uid(src):
 
 
 input_file_name = '../data/plot_data.tsv'
+output_file_name = './traces_data_with_types.tsv'
 with open(input_file_name, 'r') as f:
-    output_file_name = './traces_data_with_types.tsv'
     raw_data = load_raw_data(f)
 
     for i, chunk in enumerate(raw_data):
@@ -49,24 +50,24 @@ with open(input_file_name, 'r') as f:
             data = json.loads(chart_obj.table_data)
             columns = list(data.popitem()[1]['cols'].values())
 
-            error  = False
+            # Indicates if an error occurred while type casting
+            error  = False 
 
             columns_info = {}
             for column in columns:
                 uid = column['uid']
                 column_data = column['data']                
 
-                specific_dtype = detect_dtype(column_data)
+                specific_dtype = detect_dtype(column_data) # Detect the data type
                 try:
-                    column_data = cast_dtype(column_data, specific_dtype)
-                    fill_dtype(column_data, specific_dtype)
+                    column_data = cast_dtype(column_data, specific_dtype) # Cast the data
+                    fill_dtype(column_data, specific_dtype) # Fill missing data points
                     column_data = column_data.to_list()
-                
                 except (RuntimeWarning, Exception) as e:
                     error = True
                     break
-                    
-
+                
+                # Initialize the information structure of the column
                 columns_info[uid] = { 
                     FID : fid, 
                     FIELD_ID : f'{clean_fid}:{uid}',
@@ -76,10 +77,8 @@ with open(input_file_name, 'r') as f:
                     DTYPE : specific_dtype,
                     DATA : column_data
                 }
-            
 
-            # Extract columns outputs
-
+            # Extract columns outputs (i.e trace type and axis)
             if error:
                 del columns_info
                 continue
