@@ -54,17 +54,13 @@ with open(input_file_name, 'r') as f:
             columns_info = {}
             for column in columns:
                 uid = column['uid']
-                column_data = column['data']
-                
+                column_data = column['data']                
 
                 specific_dtype = detect_dtype(column_data)
                 try:
                     column_data = cast_dtype(column_data, specific_dtype)
                     fill_dtype(column_data, specific_dtype)
-                    if specific_dtype == 'string':
-                        column_data = column_data.to_list()
-                    else:
-                        column_data = column_data.to_numpy()
+                    column_data = column_data.to_list()
                 
                 except (RuntimeWarning, Exception) as e:
                     error = True
@@ -78,10 +74,9 @@ with open(input_file_name, 'r') as f:
                     IS_XSRC : False,
                     IS_YSRC : False,
                     DTYPE : specific_dtype,
-                    DATA : column_data 
+                    DATA : column_data
                 }
             
-            del columns, data # save some memory, I think :)
 
             # Extract columns outputs
 
@@ -118,3 +113,4 @@ with open(input_file_name, 'r') as f:
             
         df = pd.DataFrame(chunk_traces, columns=[FID, FIELD_ID, TRACE_TYPE, IS_XSRC, IS_YSRC, DTYPE, DATA])
         df.to_csv(output_file_name, mode='a', index=False, header=(i == 0), sep='\t')
+        del df
