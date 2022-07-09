@@ -11,6 +11,7 @@ DFLOAT = 'float'
 DSTRING = 'string'
 DDATE = 'datetime'
 DBOOL = 'bool'
+ISO_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 dtypes = {
     'bool': DBOOL,
@@ -81,13 +82,14 @@ def cast_dtype(elements : pd.Series, dtype : str):
     if dtype == DDATE:
         try:
             temp = pd.to_datetime(elements, infer_datetime_format=True, errors='coerce', utc=True)
-            return pd.Series(temp, dtype=temp.dtype), DDATE
+            temp = [ e.strftime(ISO_FORMAT) for e in temp ]
+            return pd.Series(temp, dtype=pd.StringDtype()), DDATE
         except:
             pass
     
     if dtype == DBOOL:
         try:
-            return pd.Series(elements, dtype=pd.BooleanDtype()), DBOOL
+            return pd.Series(elements, dtype=np.int8), DBOOL
         except:
             pass
 
@@ -97,10 +99,10 @@ def cast_dtype(elements : pd.Series, dtype : str):
 def fill_dtype(elements : pd.Series , dtype : str):
     try:
         if dtype in (DINT, DFLOAT):
-            mean = elements.mean()
+            mean = elements.mean(skipna=True)
             elements.fillna(mean, inplace=True)
         else:
-            mode = elements.mode()
+            mode = elements.mode(dropna=True)
             elements.fillna(mode, inplace=True)
     except:
         pass
