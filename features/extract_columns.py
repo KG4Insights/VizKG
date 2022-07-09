@@ -1,13 +1,12 @@
-import tty
 import pandas as pd
-import argparse,  sys
+import argparse
 from utils import load_raw_data
 import json
 from data_types import detect_dtype, cast_dtype, fill_dtype
 from constants import FID, FIELD_ID, TRACE_TYPE, IS_XSRC,IS_YSRC, DTYPE, DATA
 
 
-def extract_raw_data(input_file_name, output_file_name, verbose=False):
+def extract_columns(input_file_name, output_file_name, verbose=False):
     with open(output_file_name, 'w') as output_file:
         # just to clean the output file
         pass
@@ -50,6 +49,12 @@ def extract_raw_data(input_file_name, output_file_name, verbose=False):
                     fill_dtype(column_data, true_dtype) # Fill missing data points
 
                     column_data = column_data.to_list()
+                    try:
+                        column_data = json.dumps(column_data)
+                    except:
+                        print(column_data)
+                        pass
+                        
                     
                     columns_info[uid] = { 
                         FID : fid, 
@@ -141,17 +146,23 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--i', help='Input file path')
     parser.add_argument('--o', help='Output file path')
+    parser.add_argument('--v', help='Verbose option')
 
     args = parser.parse_args()
 
-    try:
+    if args.i:
         input_file_name = args.i
-    except:
+    else:
         input_file_name = '../data/raw_charts.tsv'
     
-    try:
+    if args.o:
         output_file_name = args.o
-    except:
-        output_file_name = './raw_columns.tsv'
+    else:
+        output_file_name = '../data/corpus_columns.tsv'
     
-    extract_raw_data(input_file_name, output_file_name, verbose=True)
+    if args.v:
+        verbose = args.v
+    else:
+        verbose = True
+    
+    extract_columns(input_file_name, output_file_name, verbose=verbose)
