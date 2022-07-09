@@ -2,7 +2,6 @@ import pandas as pd
 
 
 def load_raw_data(data_file_stream, chunk_size=500):
-    print('Loading raw data...')
 
     df = pd.read_table(
         data_file_stream,
@@ -10,4 +9,5 @@ def load_raw_data(data_file_stream, chunk_size=500):
         chunksize=chunk_size,
         encoding='utf-8'
     )
+    
     return df
