@@ -1,5 +1,8 @@
 import pandas as pd
-
+import numpy as np
+from time import time, strftime
+from collections import OrderedDict, Counter
+from scipy.stats import entropy
 
 def load_raw_data(data_file_stream, chunk_size=500):
 
@@ -11,3 +14,12 @@ def load_raw_data(data_file_stream, chunk_size=500):
     )
     
     return df
+
+
+def get_unique(li, preserve_order=False):
+    if preserve_order:
+        seen = set()
+        seen_add = seen.add
+        return [x for x in li if not (x in seen or seen_add(x))]
+    else:
+        return np.unique(li)
