@@ -1,16 +1,32 @@
-from cmath import e
+from datetime import datetime
 import numpy as np
 import random
 import pandas as pd
 import warnings
 warnings.filterwarnings(action='ignore')
 
+CATEG = 'c'
+QUANT = 'q'
+TIME = 't'
+
+var_types_list = [CATEG, QUANT, TIME]
 
 DINT = 'int'
 DFLOAT = 'float'
 DSTRING = 'string'
 DDATE = 'datetime'
 DBOOL = 'bool'
+
+data_types_list = [DINT, DFLOAT, DSTRING, DDATE, DBOOL]
+
+dtype_to_vtype = {
+    DINT : QUANT,
+    DFLOAT : QUANT,
+    DSTRING : CATEG,
+    DBOOL : CATEG,
+    DDATE : TIME
+}
+
 ISO_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 dtypes = {
@@ -96,6 +112,7 @@ def cast_dtype(elements : pd.Series, dtype : str):
     elements = [str(e) for e in elements]
     return pd.Series(elements, dtype=pd.StringDtype()), DSTRING
 
+
 def fill_dtype(elements : pd.Series , dtype : str):
     try:
         if dtype in (DINT, DFLOAT):
@@ -108,5 +125,17 @@ def fill_dtype(elements : pd.Series , dtype : str):
         pass
 
 
+def cast_to_numpy(elements, dtype):
+    if dtype == DSTRING:
+        return pd.Series(elements, dtype=pd.StringDtype()).to_numpy()
+    elif dtype == DINT:
+        return pd.Series(pd.to_numeric(elements, downcast='integer')).to_numpy()
+    elif dtype == DFLOAT:
+        return pd.Series(pd.to_numeric(elements)).to_numpy()
+    elif dtype == DBOOL:
+        return pd.Series(pd.to_numeric(elements, downcast='integer')).to_numpy()
+    elif dtype == DDATE:
+        temp = [datetime.strptime(e, ISO_FORMAT) for e in elements]
+        return pd.Series(temp).to_numpy().astype('int')
 
 
