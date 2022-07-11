@@ -116,9 +116,11 @@ def cast_dtype(elements : pd.Series, dtype : str):
 def fill_dtype(elements : pd.Series , dtype : str):
     try:
         if dtype in (DINT, DFLOAT):
+            elements.replace([np.inf, -np.inf, None], np.nan, inplace=True)
             mean = elements.mean(skipna=True)
             elements.fillna(mean, inplace=True)
         else:
+            elements.replace([None], np.nan, inplace=True)
             mode = elements.mode(dropna=True)
             elements.fillna(mode, inplace=True)
     except:

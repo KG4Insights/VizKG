@@ -6,7 +6,7 @@ IS_XSRC = 'is_xsrc'
 IS_YSRC = 'is_ysrc'
 DATA = 'data'
 DTYPE = 'dtype'
-
+LENGTH = 'length'
 
 N_XSRC = 'n_xsrc'
 N_YSRC = 'n_ysrc'
