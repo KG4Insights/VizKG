@@ -1,12 +1,15 @@
 from utils import load_raw_data
 import argparse
-from constants import FID, TRACE_TYPE, IS_XSRC,IS_YSRC, N_TRACES, N_XSRC, N_YSRC, DATA, DTYPE
+from constants import FID, TRACE_TYPE, IS_XSRC,IS_YSRC, N_TRACES, N_XSRC, N_YSRC, DATA, DTYPE, LENGTH
 from data_types import DSTRING, DINT, DFLOAT, DBOOL, DDATE
 import pandas as pd
 import json
 
 
 def extract_tables(input_file_name, output_file_name):
+    with open(output_file_name, 'w') as f:
+        pass
+
     with open(input_file_name, 'r') as f:
         raw_data = load_raw_data(f, chunk_size=500)
 
@@ -36,6 +39,7 @@ def extract_tables(input_file_name, output_file_name):
                         N_TRACES : 0,
                         N_XSRC : 0,
                         N_YSRC : 0,
+                        LENGTH : None
                     }
                     table_error = False
 
@@ -84,6 +88,13 @@ def extract_tables(input_file_name, output_file_name):
                 if len(data) < 2:
                     table_error = True
                     continue
+                
+                # All data columns in a chart must have the same dimension.
+                if table_info[LENGTH] is None:
+                    table_info[LENGTH] = len(data)
+                elif table_info[LENGTH] != len(data):
+                    table_error = True
+                    continue
 
                 if any(data.isnull()):
                     table_error = True
@@ -100,11 +111,11 @@ def extract_tables(input_file_name, output_file_name):
                 if table_info[N_XSRC] > 1:
                     table_error = True
 
-            df = pd.DataFrame(chunk_datasets, columns=[FID, TRACE_TYPE, N_TRACES, N_XSRC, N_YSRC])
+            df = pd.DataFrame(chunk_datasets, columns=[FID, TRACE_TYPE, N_TRACES, N_XSRC, N_YSRC, LENGTH])
             df.to_csv(output_file_name, mode='a', index=False, header=(i == 0))
 
         if not table_error: # check the last table :)
-            df = pd.DataFrame([list(table_info.values())], columns=[FID, TRACE_TYPE, N_TRACES, N_XSRC, N_YSRC])
+            df = pd.DataFrame([list(table_info.values())], columns=[FID, TRACE_TYPE, N_TRACES, N_XSRC, N_YSRC, LENGTH])
             df.to_csv(output_file_name, mode='a', index=False, header=False)
 
 if __name__ == '__main__':
