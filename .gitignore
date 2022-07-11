@@ -9,3 +9,5 @@ share
 pyvenv.cfg
 __pycache__
 *.pkl
+etc
+.ipynb_checkpoints
