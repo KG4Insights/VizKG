@@ -6,11 +6,7 @@ from utils import get_unique
 
 
 
-basic_features_list = [
-    {'name': 'fid', 'type': 'id'},
-    {'name': 'field_id', 'type': 'id'},
-    {'name': 'length', 'type': 'numeric'}
-]
+basic_features_list = [{'name': 'length', 'type': 'numeric'}]
 
 
 for data_type in data_types_list:
@@ -68,7 +64,7 @@ statistical_features_list = [
     {'name': 'is_normal_1', 'type': 'boolean'},
 ]
 
-field_sequence_features_list = [
+sequence_features_list = [
     {'name': 'is_sorted', 'type': 'boolean'},
     {'name': 'is_monotonic', 'type': 'boolean'},
     {'name': 'sortedness', 'type': 'numeric'},
@@ -78,6 +74,16 @@ field_sequence_features_list = [
     {'name': 'is_lin_space', 'type': 'boolean'},
     {'name': 'is_log_space', 'type': 'boolean'},
 ]
+
+single_column_features_names = [f['name'] for f in basic_features_list + uniqueness_features_list + statistical_features_list + sequence_features_list]
+
+def get_basic_features(v, dtype, vtype):
+    r = dict([(f['name'], None) for f in basic_features_list])
+    r['length'] = len(v)
+    r[f'data_type_is_{dtype}'] = True
+    r[f'var_type_is_{vtype}'] = True
+    return r
+
 
 def get_uniqueness_features(v, dtype, vtype):
     r = dict([(f['name'], None) for f in uniqueness_features_list])
@@ -168,7 +174,7 @@ def get_statistical_features(v, var_type):
 
 
 def get_sequence_features(v, vtype):
-    r = dict([(f['name'], None) for f in field_sequence_features_list])
+    r = dict([(f['name'], None) for f in sequence_features_list])
     if not len(v):
         return r
     sorted_v = np.sort(v)
@@ -194,16 +200,17 @@ def get_sequence_features(v, vtype):
     return r
 
 
-def extract_single_column_features(v, dtype):
+def get_single_column_features(v, dtype):
     vtype = dtype_to_vtype[dtype]
     v_hist = v
     if dtype in [CATEG, TIME]:
         v_hist = np.array(pd.value_counts(v)) 
-
+    
+    basic_features = get_basic_features(v, dtype, vtype)
     uniqueness_features = get_uniqueness_features(v, dtype, vtype)
     statistical_features = get_statistical_features(v_hist, vtype)
     sequence_features = get_sequence_features(v, vtype)
-    return list(uniqueness_features.values()) + list(statistical_features.values()) + list(sequence_features.values())
+    return list(basic_features.values()) + list(uniqueness_features.values()) + list(statistical_features.values()) + list(sequence_features.values())
 
-    
+
     
