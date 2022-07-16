@@ -38,8 +38,8 @@ def extract_single_column_features(input_file_name, output_file_name):
 if __name__ == '__main__':
     sample_file_name1 = '../data/corpus_sample_3types.tsv'
     sample_file_name2 = '../data/corpus_sample_5types.tsv'
-    output_file_name1 = './single_column_features_3types.csv'
-    output_file_name2 = './single_column_features_5types.csv'
+    output_file_name1 = '../features/single_column_features_3types.csv'
+    output_file_name2 = '../features/single_column_features_5types.csv'
     extract_single_column_features(sample_file_name1, output_file_name1)
     print()
     extract_single_column_features(sample_file_name2, output_file_name2)
