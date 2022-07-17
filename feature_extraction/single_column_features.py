@@ -17,8 +17,7 @@ for var_type in var_types_list:
     basic_features_list.append({'name': f'var_type_is_{var_type}', 'type': 'boolean'})
 
 
-uniqueness_features_list = [
-    {'name': 'num_unique_elements', 'type': 'numeric'},
+uniqueness_features_list = [ {'name': 'num_unique_elements', 'type': 'numeric'},
     {'name': 'unique_percent', 'type': 'numeric'},
     {'name': 'is_unique', 'type': 'boolean'}
 ]
@@ -202,9 +201,7 @@ def get_sequence_features(v, vtype):
 
 def get_single_column_features(v, dtype):
     vtype = dtype_to_vtype[dtype]
-    v_hist = v
-    if dtype in [CATEG, TIME]:
-        v_hist = np.array(pd.value_counts(v)) 
+    v_hist = np.array(pd.value_counts(v)) if dtype in [CATEG, TIME] else v
     
     basic_features = get_basic_features(v, dtype, vtype)
     uniqueness_features = get_uniqueness_features(v, dtype, vtype)
