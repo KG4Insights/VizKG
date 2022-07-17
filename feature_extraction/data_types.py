@@ -85,7 +85,7 @@ def detect_dtype(elements : list, sample_size=500, confidence=0.01):
     return DSTRING # The default type of a column is string
 
 
-def cast_dtype(elements : pd.Series, dtype : str):
+def cast_dtype(elements : pd.Series, dtype : str, bag=dict()):
 
     if dtype == DINT:
         try:
@@ -117,7 +117,6 @@ def cast_dtype(elements : pd.Series, dtype : str):
     
     # Use bag of words representation for string arrays since it's more efficient
     # for storage and computation speed.
-    bag = {}
     temp = []
     for e in elements:
         if not e or not isinstance(e, str): 
@@ -139,6 +138,8 @@ def fill_dtype(elements : pd.Series , dtype : str):
         mean = elements.mean(skipna=True)
         if mean == np.nan or np.isinf(mean): # Due to overflows
             return pd.Series([]), False # Could be possible to use the mode for inputation if mean fails
+        if dtype == DINT:
+            mean = int(mean)
         elements.fillna(mean, inplace=True)
 
     else:
