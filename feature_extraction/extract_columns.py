@@ -3,10 +3,11 @@ import argparse
 from utils import load_raw_data
 import json
 from data_types import detect_dtype, cast_dtype, fill_dtype
-from constants import FID, FIELD_ID, TRACE_TYPE, IS_XSRC,IS_YSRC, DTYPE, DATA
+from constants import FID, FIELD_ID, TRACE_TYPE, IS_XSRC,IS_YSRC, IS_ONLY_XSRC, IS_ONLY_YSRC, DTYPE, DATA
 
 
 def extract_columns(input_file_name, output_file_name, verbose=False):
+    header = [FID, FIELD_ID, TRACE_TYPE, IS_XSRC, IS_YSRC, IS_ONLY_XSRC, IS_ONLY_YSRC, DTYPE, DATA ]
     with open(output_file_name, 'w') as output_file:
         # just to clean the output file
         pass
@@ -35,7 +36,8 @@ def extract_columns(input_file_name, output_file_name, verbose=False):
                 columns = list(data.popitem()[1]['cols'].values())
 
                 columns_info = {}
-
+                
+                bag = {}
                 for column in columns:
                     uid = column['uid']
                     column_data = list(column['data'])
@@ -46,7 +48,7 @@ def extract_columns(input_file_name, output_file_name, verbose=False):
                     # Try to cast the column elements to the infered type, this returns the casted column
                     # and true_dtype, if the cast to the infered type is successful then infered_dtype == true_dtype
                     # otherwise true_dtype is a default, in this case string.
-                    column_data, true_dtype = cast_dtype(column_data, infered_dtype) 
+                    column_data, true_dtype = cast_dtype(column_data, infered_dtype, bag) 
 
                     column_data, success = fill_dtype(column_data, true_dtype) # Fill missing data points
 
@@ -59,12 +61,16 @@ def extract_columns(input_file_name, output_file_name, verbose=False):
                         TRACE_TYPE : None,
                         IS_XSRC : False,
                         IS_YSRC : False,
+                        IS_ONLY_XSRC: False,
+                        IS_ONLY_YSRC: False,
                         DTYPE : true_dtype,
                         DATA : column_data
                     }
 
-                # Extract columns outputs (i.e trace type and axis)
+                # Extract columns outputs (i.e trace type, axis, is shared axis)
                 specification = json.loads(chart_obj.chart_data)
+                columns_in_x = []
+                columns_in_y = []
 
                 for trace in specification:
                     ttype = get_trace_type(trace)
@@ -86,6 +92,7 @@ def extract_columns(input_file_name, output_file_name, verbose=False):
                             xsrc = get_src_uid(xsrc)
                             columns_info[xsrc][IS_XSRC] = True
                             columns_info[xsrc][TRACE_TYPE] = ttype
+                            columns_in_x.append(xsrc)
                         except KeyError:
                             pass
                     if ysrc:
@@ -93,15 +100,21 @@ def extract_columns(input_file_name, output_file_name, verbose=False):
                             ysrc = get_src_uid(ysrc)
                             columns_info[ysrc][IS_YSRC] = True
                             columns_info[ysrc][TRACE_TYPE] = ttype
+                            columns_in_y.append(ysrc)
                         except KeyError:
                             pass
+                
+                if len(columns_in_x) == 1:
+                    columns_info[columns_in_x[0]][IS_ONLY_XSRC] = True
+                if len(columns_in_y) == 1:
+                    columns_info[columns_in_y[0]][IS_ONLY_YSRC] = True
 
                 del specification
 
                 chunk_columns.extend(list(columns_info.values()))
 
                
-            df = pd.DataFrame(chunk_columns, columns=[FID, FIELD_ID, TRACE_TYPE, IS_XSRC, IS_YSRC, DTYPE, DATA])
+            df = pd.DataFrame(chunk_columns, columns=header)
             df.to_csv(output_file_name, mode='a', index=False, header=(i == 0), sep='\t')
 
             if verbose:
