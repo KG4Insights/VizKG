@@ -6,7 +6,7 @@ import pandas as pd
 import json
 
 
-def extract_tables(input_file_name, output_file_name):
+def extract_tables_outputs(input_file_name, output_file_name):
     with open(output_file_name, 'w') as f:
         pass
 
@@ -113,6 +113,6 @@ if __name__ == '__main__':
     if args.o:
         output_file_name = args.o
     else:
-        output_file_name = '../data/corpus_tables.csv'
+        output_file_name = '../data/corpus_tables_outputs.csv'
     
-    extract_tables(input_file_name, output_file_name)
+    extract_tables_outputs(input_file_name, output_file_name)
