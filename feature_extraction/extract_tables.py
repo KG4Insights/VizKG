@@ -68,22 +68,6 @@ def extract_tables(input_file_name, output_file_name):
                     table_error = True
                     continue
                 
-                try:
-                    dtype = column[DTYPE]
-                    if dtype == DSTRING:
-                        data = pd.Series(data, dtype=pd.StringDtype())
-                    elif dtype == DINT:
-                        data = pd.Series(pd.to_numeric(data, downcast='integer'))
-                    elif dtype == DFLOAT:
-                        data = pd.Series(pd.to_numeric(data))
-                    elif dtype == DBOOL:
-                        data = pd.Series(pd.to_numeric(data, downcast='integer'))
-                    elif dtype == DDATE:
-                        data = pd.Series(data, dtype=pd.StringDtype())
-                except:
-                    table_error = True
-                    continue
-
 
                 if len(data) < 2:
                     table_error = True
@@ -93,10 +77,6 @@ def extract_tables(input_file_name, output_file_name):
                 if table_info[LENGTH] is None:
                     table_info[LENGTH] = len(data)
                 elif table_info[LENGTH] != len(data):
-                    table_error = True
-                    continue
-
-                if any(data.isnull()):
                     table_error = True
                     continue
                 

@@ -1,4 +1,5 @@
 from datetime import datetime
+from collections.abc import Hashable
 import numpy as np
 import random
 import pandas as pd
@@ -27,8 +28,6 @@ dtype_to_vtype = {
     DDATE : TIME
 }
 
-ISO_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
-
 dtypes = {
     'bool': DBOOL,
 
@@ -44,16 +43,21 @@ dtypes = {
     'object' : DSTRING,
 }
 
+
 def detect_dtype(elements : list, sample_size=500, confidence=0.01):
 
     # Gets a sample from the elements
     if sample_size >= len(elements):
         elements_sample = pd.Series(elements, dtype=np.dtype('object'))
     else:
-        elements_sample = pd.Series(random.sample(elements, sample_size), dtype=np.dtype('object'))
+        elements_sample = random.sample(elements, sample_size)
+   
+    elements_sample = [ e for e in elements_sample if e is not None]
+    
+    elements_sample = pd.Series(elements_sample, dtype=np.dtype('object'))
     
     # This is the maximun misses allow when casting to a specific type
-    max_errors = len(elements_sample) * confidence + 1
+    max_errors = len(elements_sample) / 2
 
     
     try: 
@@ -80,6 +84,7 @@ def detect_dtype(elements : list, sample_size=500, confidence=0.01):
 
     return DSTRING # The default type of a column is string
 
+
 def cast_dtype(elements : pd.Series, dtype : str):
 
     if dtype == DINT:
@@ -98,8 +103,9 @@ def cast_dtype(elements : pd.Series, dtype : str):
     if dtype == DDATE:
         try:
             temp = pd.to_datetime(elements, infer_datetime_format=True, errors='coerce', utc=True)
-            temp = [ e.strftime(ISO_FORMAT) for e in temp ]
-            return pd.Series(temp, dtype=pd.StringDtype()), DDATE
+            # Cast datetime to milliseconds for more efficient storage and computation
+            temp = [ e.timestamp() if e is not pd.NaT else np.nan for e in temp]
+            return pd.Series(temp), DDATE
         except:
             pass
     
@@ -108,36 +114,40 @@ def cast_dtype(elements : pd.Series, dtype : str):
             return pd.Series(elements, dtype=np.int8), DBOOL
         except:
             pass
+    
+    # Use bag of words representation for string arrays since it's more efficient
+    # for storage and computation speed.
+    bag = {}
+    temp = []
+    for e in elements:
+        if not e or not isinstance(e, str): 
+            temp.append(np.nan)
+        elif e in bag:
+            temp.append(bag[e])
+        else:
+            bag[e] = len(bag)
+            temp.append(bag[e])
 
-    elements = [str(e) for e in elements]
-    return pd.Series(elements, dtype=pd.StringDtype()), DSTRING
+    return pd.Series(temp), DSTRING
 
 
 def fill_dtype(elements : pd.Series , dtype : str):
-    try:
-        if dtype in (DINT, DFLOAT):
-            elements.replace([np.inf, -np.inf, None], np.nan, inplace=True)
-            mean = elements.mean(skipna=True)
-            elements.fillna(mean, inplace=True)
-        else:
-            elements.replace([None], np.nan, inplace=True)
-            mode = elements.mode(dropna=True)
-            elements.fillna(mode, inplace=True)
-    except:
-        pass
 
+    if dtype in (DINT, DFLOAT):
 
-def cast_to_numpy(elements, dtype):
-    if dtype == DSTRING:
-        return pd.Series(elements, dtype=pd.StringDtype()).to_numpy()
-    elif dtype == DINT:
-        return pd.Series(pd.to_numeric(elements, downcast='integer')).to_numpy()
-    elif dtype == DFLOAT:
-        return pd.Series(pd.to_numeric(elements)).to_numpy()
-    elif dtype == DBOOL:
-        return pd.Series(pd.to_numeric(elements, downcast='integer')).to_numpy()
-    elif dtype == DDATE:
-        temp = [datetime.strptime(e, ISO_FORMAT) for e in elements]
-        return pd.Series(temp).to_numpy().astype('int')
+        elements.replace([np.inf, -np.inf], np.nan, inplace=True)
+        mean = elements.mean(skipna=True)
+        if mean == np.nan or np.isinf(mean): # Due to overflows
+            return pd.Series([]), False # Could be possible to use the mode for inputation if mean fails
+        elements.fillna(mean, inplace=True)
 
+    else:
 
+        mode = elements.mode(dropna=True)
+        if len(mode) > 1:
+            mode = mode[0]
+        elif len(mode) < 1: # When all elements are NaN
+            return pd.Series([]), False
+        elements.fillna(mode, inplace=True)
+
+    return elements, True

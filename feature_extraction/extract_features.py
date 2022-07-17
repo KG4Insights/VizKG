@@ -1,7 +1,6 @@
 from single_column_features import get_single_column_features, single_column_features_names
 import pandas as pd
 from utils import load_raw_data
-from data_types import cast_to_numpy
 import json
 from constants import FID, FIELD_ID, TRACE_TYPE, DATA, DTYPE, IS_XSRC, IS_YSRC
 import argparse
@@ -19,16 +18,9 @@ def extract_single_column_features(input_file_name, output_file_name):
             chunk_features = []
             for index, column in chunk.iterrows():
                 column_data = json.loads(column[DATA])
-                column_data = cast_to_numpy(column_data, column[DTYPE])
+                column_data = np.array(column_data)
                 column_output = [column[FID], column[FIELD_ID], column[TRACE_TYPE], column[IS_XSRC], column[IS_YSRC]]
-                try:
-                    features = column_output + get_single_column_features(column_data, column[DTYPE])
-                except:
-                    print(column[FIELD_ID])
-                    mean = np.mean(column_data[~np.isinf(column_data)])
-                    print(mean)
-                    column_data[np.isinf(column_data)] = mean
-                    features = column_output + get_single_column_features(column_data, column[DTYPE])
+                features = column_output + get_single_column_features(column_data, column[DTYPE])
                 chunk_features.append(features)
             df = pd.DataFrame(chunk_features, columns=single_column_features_header)
             df.to_csv(output_file_name, mode='a', index=False, header=(i == 0))

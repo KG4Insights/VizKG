@@ -19,6 +19,8 @@ def extract_columns(input_file_name, output_file_name, verbose=False):
         total_chunks = None
         total_columns = 0
 
+#        with_errors = { 'allenfrostline:14', 'oscjaguar:1'}
+
         for i, chunk in enumerate(raw_data):
             total_chunks = i
             chunk_columns = []
@@ -36,7 +38,7 @@ def extract_columns(input_file_name, output_file_name, verbose=False):
 
                 for column in columns:
                     uid = column['uid']
-                    column_data = column['data']                
+                    column_data = list(column['data'])
 
                     # Infer the data type of the column using a small sample of elements
                     infered_dtype = detect_dtype(column_data) 
@@ -46,15 +48,10 @@ def extract_columns(input_file_name, output_file_name, verbose=False):
                     # otherwise true_dtype is a default, in this case string.
                     column_data, true_dtype = cast_dtype(column_data, infered_dtype) 
 
-                    fill_dtype(column_data, true_dtype) # Fill missing data points
+                    column_data, success = fill_dtype(column_data, true_dtype) # Fill missing data points
 
                     column_data = column_data.to_list()
-                    try:
-                        column_data = json.dumps(column_data)
-                    except:
-                        print(column_data)
-                        pass
-                        
+                    column_data = json.dumps(column_data)
                     
                     columns_info[uid] = { 
                         FID : fid, 
@@ -75,11 +72,13 @@ def extract_columns(input_file_name, output_file_name, verbose=False):
                     try:
                         xsrc = trace.get('xsrc')
                     except:
+                        # could not exist in a single axis chart
                         xsrc = None
 
                     try:
                         ysrc = trace.get('ysrc')
                     except:
+                        # could not exist in a single axis chart
                         ysrc = None
 
                     if xsrc:
