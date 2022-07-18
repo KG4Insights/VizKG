@@ -74,6 +74,11 @@ sequence_features_list = [
     {'name': 'is_log_space', 'type': 'boolean'},
 ]
 
+all_single_features_list = \
+    basic_features_list + \
+    statistical_features_list + \
+    sequence_features_list
+
 single_column_features_names = [f['name'] for f in basic_features_list + uniqueness_features_list + statistical_features_list + sequence_features_list]
 
 def get_basic_features(v, dtype, vtype):
