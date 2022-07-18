@@ -98,21 +98,15 @@ def extract_tables_outputs(input_file_name, output_file_name):
             df = pd.DataFrame([list(table_info.values())], columns=[FID, TRACE_TYPE, N_TRACES, N_XSRC, N_YSRC, LENGTH])
             df.to_csv(output_file_name, mode='a', index=False, header=False)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--i', help='Input file path')
-    parser.add_argument('--o', help='Output file path')
+    parser.add_argument('-i', required=True, help='Input file path')
+    parser.add_argument('-o', required=True, help='Output file path')
 
     args = parser.parse_args()
 
-    if args.i:
-        input_file_name = args.i
-    else:
-        input_file_name = '../data/corpus_columns.tsv'
-    
-    if args.o:
-        output_file_name = args.o
-    else:
-        output_file_name = '../data/corpus_tables_outputs.csv'
+    input_file_name = args.i
+    output_file_name = args.o
     
     extract_tables_outputs(input_file_name, output_file_name)

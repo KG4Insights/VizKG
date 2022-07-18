@@ -14,7 +14,7 @@ pairwise_column_features_header = [FID, 'a_field_id', 'b_field_id'] + pairwise_c
 def extract_single_column_features(input_file_name, output_file_name):
     with open(output_file_name, 'w') as f:
         pass
-    print(f'Extracting features from {input_file_name}')
+    print(f'Extracting single column features from {input_file_name}')
     with open(input_file_name, 'r') as f:
         data = load_raw_data(f,chunk_size=1000)
         for i, chunk in enumerate(data):
@@ -82,10 +82,21 @@ def _extract_pairwise_column_features(output_file_name, table_fid, table_columns
 
 
 if __name__ == '__main__':
-    input_file_name = '../data/cleaned_corpus_columns.tsv'
-    soutput_file_name = '../features/single_column_features.csv'
-    poutput_file_name = '../features/pairwise_column_features.csv'
 
-    #extract_single_column_features(input_file_name, soutput_file_name)
-    extract_pairwise_column_features(input_file_name, poutput_file_name)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', required=True, help='Input file path')
+    parser.add_argument('-os', help='Output file path for single column features')
+    parser.add_argument('-op', help='Output file path for pairwise column features')
+
+    args = parser.parse_args()
+    if not args.os and not args.op:
+        print('At least one output file must be specified')
+        exit(1)
+
+    input_file_name = args.i
+    
+    if args.os:
+        extract_single_column_features(input_file_name, args.os)
+    if args.op:
+        extract_pairwise_column_features(input_file_name, args.op)
 

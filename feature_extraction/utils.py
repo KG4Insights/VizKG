@@ -4,13 +4,14 @@ from time import time, strftime
 from collections import OrderedDict, Counter
 from scipy.stats import entropy
 
-def load_raw_data(data_file_stream, chunk_size=500):
+def load_raw_data(data_file_stream, chunk_size=500,sep='\t'):
 
     df = pd.read_table(
         data_file_stream,
         on_bad_lines='skip',
         chunksize=chunk_size,
-        encoding='utf-8'
+        encoding='utf-8',
+        delimiter=sep
     )
     
     return df

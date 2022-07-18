@@ -1,10 +1,10 @@
 import pandas as pd
-import argparse
-from utils import load_raw_data
+import argparse 
+from utils import load_raw_data 
 import json
 from data_types import detect_dtype, cast_dtype, fill_dtype
 from constants import FID, FIELD_ID, TRACE_TYPE, IS_XSRC,IS_YSRC, IS_ONLY_XSRC, IS_ONLY_YSRC, DTYPE, DATA
-
+import sys
 
 def extract_columns(input_file_name, output_file_name, verbose=False):
     header = [FID, FIELD_ID, TRACE_TYPE, IS_XSRC, IS_YSRC, IS_ONLY_XSRC, IS_ONLY_YSRC, DTYPE, DATA ]
@@ -156,25 +156,13 @@ def get_src_uid(src):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--i', help='Input file path')
-    parser.add_argument('--o', help='Output file path')
-    parser.add_argument('--v', help='Verbose option')
+    parser.add_argument('-i', required=True, help='Input file path')
+    parser.add_argument('-o', required=True, help='Output file path')
+    parser.add_argument('-v', help='Verbose option', action='store_const', const=True, default=False)
 
     args = parser.parse_args()
 
-    if args.i:
-        input_file_name = args.i
-    else:
-        input_file_name = '../data/raw_charts.tsv'
-    
-    if args.o:
-        output_file_name = args.o
-    else:
-        output_file_name = '../data/corpus_columns.tsv'
-    
-    if args.v:
-        verbose = args.v
-    else:
-        verbose = True
-    
-    extract_columns(input_file_name, output_file_name, verbose=verbose)
+    input_file_name = args.i
+    output_file_name =args.o
+
+    extract_columns(input_file_name, output_file_name, verbose=args.v)

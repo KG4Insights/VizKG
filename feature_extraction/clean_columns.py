@@ -34,25 +34,16 @@ def clean_corpus_columns(input_columns_file_name, input_tables_file_name, output
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--c', help='Columns file path')
-    parser.add_argument('--t', help='Tables file path')
-    parser.add_argument('--o', help='Output file path')
+    parser.add_argument('-c', required=True, help='Columns file path')
+    parser.add_argument('-t', required=True, help='Tables file path')
+    parser.add_argument('-o', required=True, help='Output file path')
 
     args = parser.parse_args()
 
-    if args.c:
-        input_columns_file_name = args.c
-    else:
-        input_columns_file_name = '../data/corpus_columns.tsv'
-    
-    if args.t:
-        input_tables_file_name = args.t
-    else:
-        input_tables_file_name = '../data/corpus_tables_outputs.csv'
-    
-    if args.o:
-        output_file_name = args.o
-    else:
-        output_file_name = '../data/cleaned_corpus_columns.tsv'
+    input_columns_file_name = args.c
+
+    input_tables_file_name = args.t
+
+    output_file_name = args.o
     
     clean_corpus_columns(input_columns_file_name, input_tables_file_name, output_file_name)
